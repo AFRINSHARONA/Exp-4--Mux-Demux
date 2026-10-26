@@ -15,12 +15,73 @@ Boolean Functions
 <img width="575" height="65" alt="image" src="https://github.com/user-attachments/assets/04c2d90c-0b6b-4b35-b603-d0e10e1e4f00" />
 
 ## Design / RTL Program
+// gedit mux_demux.v
+module mux2to1 (
+    input  wire A,      // input line 0
+    input  wire B,      // input line 1
+    input  wire S,      // select line
+    output wire Y       // output
+);
+    assign Y = (~S & A) | (S & B);
+endmodule
+ 
+module demux1to2 (
+    input  wire D,      // data input
+    input  wire S,      // select line
+    output wire Y0,     // output line 0
+    output wire Y1      // output line 1
+);
+    assign Y0 = (~S) & D;
+    assign Y1 = S & D;
+endmodule
 
-```
 ## **Testbench Program
-
-
-
+// gedit tb4.v
+module tb4;
+    reg  A, B, S, D;
+    wire Y;
+    wire Y0, Y1;
+ 
+    // Instantiate the 2:1 Multiplexer
+    mux2to1 mux_uut (
+        .A(A),
+        .B(B),
+        .S(S),
+        .Y(Y)
+    );
+ 
+    // Instantiate the 1:2 Demultiplexer
+    demux1to2 demux_uut (
+        .D(D),
+        .S(S),
+        .Y0(Y0),
+        .Y1(Y1)
+    );
+ 
+    initial begin
+        // ---- VCD dump setup ----
+        $dumpfile("mux_demux.vcd");   // name of the VCD file to be generated
+        $dumpvars(0, tb4);             // dump all signals in this testbench hierarchy
+ 
+        // ---- Apply all input combinations ----
+        $monitor("Time=%0t S=%b A=%b B=%b Y=%b | D=%b Y0=%b Y1=%b",
+                  $time, S, A, B, Y, D, Y0, Y1);
+ 
+        // MUX select = 0 -> Y should follow A
+        S = 0; A = 0; B = 0; D = 0; #10;
+        S = 0; A = 0; B = 1; D = 1; #10;
+        S = 0; A = 1; B = 0; D = 1; #10;
+        S = 0; A = 1; B = 1; D = 0; #10;
+ 
+        // MUX select = 1 -> Y should follow B
+        S = 1; A = 0; B = 0; D = 0; #10;
+        S = 1; A = 0; B = 1; D = 1; #10;
+        S = 1; A = 1; B = 0; D = 1; #10;
+        S = 1; A = 1; B = 1; D = 0; #10;
+ 
+        #10 $finish;
+    end
+endmodule
 ## Truth Table
 
 ### 2:1 Multiplexer
@@ -77,34 +138,12 @@ The waveform should agree with the truth table.
 ## Expected Result
 
 The 2:1 Multiplexer and 1:2 Demultiplexer were realized using Verilog HDL:
-
-•	Y = S'.A + S.B
-•	Y0 = S'.D, Y1 = S.D
+<img width="476" height="193" alt="exp-4 expected value" src="https://github.com/user-attachments/assets/9310c9bc-0ac4-4205-8c55-4a63aef91639" />
 
 The design was compiled and simulated using Synopsys VCS, and the functionality was verified using DVE waveform analysis, matching the expected truth table.
 
 ## Output
-
-
-## Viva-Voce Questions
-
-•	What is a Multiplexer, and why is it called a 'data selector'?
-
-•	What is a Demultiplexer, and how does it differ functionally from a Multiplexer?
-
-•	How many select lines are required for an 8:1 MUX and a 1:8 DEMUX?
-
-•	Write the Boolean expression for a 4:1 Multiplexer.
-
-•	What is the purpose of a Verilog testbench?
-
-•	Why is a VCD file generated, and what does $dumpvars(0, tb) do?
-
-•	What is the purpose of ./simv?
-
-•	What is the difference between simulation and synthesis?
-
-•	How would you extend the 2:1 MUX design to a 4:1 MUX using two 2:1 MUXes?
+<img width="1920" height="964" alt="exp-4 wave" src="https://github.com/user-attachments/assets/94a11066-6be2-4b67-a8e2-cc21d7a5367c" />
 
 ## Result
 
